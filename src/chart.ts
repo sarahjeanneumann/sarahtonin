@@ -36,8 +36,8 @@ const COLORS = {
 };
 
 const TREND_COLORS = {
-  rising: '#56b4e9',
-  falling: '#e69f00',
+  rising: '#e69f00',
+  falling: '#56b4e9',
   flat: 'rgba(242, 239, 230, 0.45)',
 };
 
