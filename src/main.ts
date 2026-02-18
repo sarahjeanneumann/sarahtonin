@@ -104,6 +104,7 @@ const FRED_PHRASES = [
   'You have come too far to doubt yourself now.',
   'You are worthy of ease, joy, and good things.',
   'Even tiny progress today is a victory.',
+  'pee pee poo poo bitch',
 ];
 
 function shuffle<T>(items: T[]): T[] {
