@@ -35,7 +35,11 @@ const COLORS = {
   textMuted: 'rgba(242, 239, 230, 0.5)',
 };
 
-const TREND_COLOR = 'rgba(242, 239, 230, 0.45)';
+const TREND_COLORS = {
+  rising: '#44ff44',
+  falling: '#ff4444',
+  flat: 'rgba(242, 239, 230, 0.45)',
+};
 
 /**
  * Lighten a hex color by mixing with white.
@@ -179,10 +183,13 @@ export function renderChart(
       if (startIdx !== undefined) trendData[startIdx] = yStart;
       if (endIdx !== undefined) trendData[endIdx] = yEnd;
 
+      const trendColor = Math.abs(slope) < 0.01 ? TREND_COLORS.flat
+        : slope > 0 ? TREND_COLORS.rising : TREND_COLORS.falling;
+
       datasets.push({
         label: si === 0 ? 'Trend' : '',
         data: trendData,
-        borderColor: TREND_COLOR,
+        borderColor: trendColor,
         borderWidth: 2,
         borderDash: [8, 4],
         pointRadius: 0,
