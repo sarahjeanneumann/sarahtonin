@@ -63,6 +63,7 @@ const fredBtn = document.getElementById('fred-btn') as HTMLButtonElement | null;
 
 let selectedWaypointId: string | null = null;
 let fredPhrasePool: string[] = [];
+let fredHoverLastSpokenAt = 0;
 
 const FRED_PHRASES = [
   'You are doing better than you think.',
@@ -98,10 +99,12 @@ function speakFredPhrase(text: string): void {
 
   const utterance = new SpeechSynthesisUtterance(text);
   const voices = window.speechSynthesis.getVoices();
-  const preferredVoice = voices.find(v => /^en(-|_)/i.test(v.lang));
+  const preferredVoice = voices.find(v => /en(-|_)/i.test(v.lang)
+      && /(daniel|david|fred|alex|tom|lee|male|english \(uk\))/i.test(v.name))
+    || voices.find(v => /^en(-|_)/i.test(v.lang));
   if (preferredVoice) utterance.voice = preferredVoice;
-  utterance.rate = 0.96;
-  utterance.pitch = 1.06;
+  utterance.rate = 0.82;
+  utterance.pitch = 0.62;
   utterance.volume = 0.95;
 
   window.speechSynthesis.cancel();
@@ -406,6 +409,13 @@ document.addEventListener('drop', (e) => {
 });
 
 if (fredBtn) {
+  fredBtn.addEventListener('mouseenter', () => {
+    const now = Date.now();
+    if (now - fredHoverLastSpokenAt < 1200) return;
+    fredHoverLastSpokenAt = now;
+    speakFredPhrase('Click for encouragement');
+  });
+
   fredBtn.addEventListener('click', () => {
     const rect = fredBtn.getBoundingClientRect();
     launchFredConfetti(rect.left + rect.width / 2, rect.top + rect.height / 2);
