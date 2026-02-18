@@ -86,15 +86,16 @@ body::before {
   right: 5.5vw;
   bottom: 8vh;
   display: flex;
-  align-items: center;
-  gap: 0.4rem;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.45rem;
   z-index: 4;
 }
 
 .forest-fred {
   position: relative;
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
   padding: 0;
   border: 1px solid rgba(255, 255, 255, 0.25);
   border-radius: 4px;
@@ -124,8 +125,8 @@ body::before {
 }
 
 .calm-audio-btn {
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
   padding: 0;
   border: 1px solid rgba(255, 255, 255, 0.25);
   border-radius: 4px;
@@ -135,7 +136,7 @@ body::before {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.85rem;
+  font-size: 0.95rem;
   line-height: 1;
   cursor: pointer;
 }
@@ -988,18 +989,18 @@ body::before {
   .forest-controls {
     right: 4vw;
     bottom: 10vh;
-    gap: 0.32rem;
+    gap: 0.35rem;
   }
 
   .forest-fred {
-    width: 20px;
-    height: 20px;
+    width: 23px;
+    height: 23px;
   }
 
   .calm-audio-btn {
-    width: 20px;
-    height: 20px;
-    font-size: 0.72rem;
+    width: 23px;
+    height: 23px;
+    font-size: 0.8rem;
   }
 
   #app {
