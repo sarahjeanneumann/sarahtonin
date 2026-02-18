@@ -58,12 +58,14 @@ const wpColorInput = document.getElementById('wp-color') as HTMLInputElement;
 const dataStatus = document.getElementById('data-status') as HTMLElement;
 const comparisonTitle = document.getElementById('comparison-title') as HTMLElement;
 const fredBtn = document.getElementById('fred-btn') as HTMLButtonElement | null;
+const calmMusicBtn = document.getElementById('calm-music-btn') as HTMLButtonElement | null;
 
 // ── State ────────────────────────────────────────────────────────
 
 let selectedWaypointId: string | null = null;
 let fredPhrasePool: string[] = [];
 let fredHoverLastSpokenAt = 0;
+let calmMusicFrame: HTMLIFrameElement | null = null;
 
 const FRED_PHRASES = [
   'You are doing better than you think.',
@@ -109,6 +111,35 @@ function speakFredPhrase(text: string): void {
 
   window.speechSynthesis.cancel();
   window.speechSynthesis.speak(utterance);
+}
+
+function setCalmMusicState(isPlaying: boolean): void {
+  if (!calmMusicBtn) return;
+  calmMusicBtn.classList.toggle('active', isPlaying);
+  calmMusicBtn.setAttribute('aria-label', isPlaying ? 'Stop calming music' : 'Play calming music');
+  calmMusicBtn.title = isPlaying ? 'Stop calming music' : 'Play calming music';
+}
+
+function toggleCalmMusic(): void {
+  if (!calmMusicFrame) {
+    calmMusicFrame = document.createElement('iframe');
+    calmMusicFrame.src = 'https://www.youtube.com/embed/bMD7yJtES4c?start=2766&autoplay=1&loop=1&playlist=bMD7yJtES4c';
+    calmMusicFrame.allow = 'autoplay; encrypted-media; picture-in-picture';
+    calmMusicFrame.width = '1';
+    calmMusicFrame.height = '1';
+    calmMusicFrame.style.position = 'fixed';
+    calmMusicFrame.style.left = '-9999px';
+    calmMusicFrame.style.bottom = '0';
+    calmMusicFrame.style.border = '0';
+    calmMusicFrame.style.opacity = '0';
+    document.body.appendChild(calmMusicFrame);
+    setCalmMusicState(true);
+    return;
+  }
+
+  calmMusicFrame.remove();
+  calmMusicFrame = null;
+  setCalmMusicState(false);
 }
 
 function launchFredConfetti(originX: number, originY: number): void {
@@ -420,6 +451,12 @@ if (fredBtn) {
     const rect = fredBtn.getBoundingClientRect();
     launchFredConfetti(rect.left + rect.width / 2, rect.top + rect.height / 2);
     speakFredPhrase(nextFredPhrase());
+  });
+}
+
+if (calmMusicBtn) {
+  calmMusicBtn.addEventListener('click', () => {
+    toggleCalmMusic();
   });
 }
 
