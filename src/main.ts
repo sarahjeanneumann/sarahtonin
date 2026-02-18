@@ -62,6 +62,51 @@ const fredBtn = document.getElementById('fred-btn') as HTMLButtonElement | null;
 // ── State ────────────────────────────────────────────────────────
 
 let selectedWaypointId: string | null = null;
+let fredPhrasePool: string[] = [];
+
+const FRED_PHRASES = [
+  'You are doing better than you think.',
+  'One tiny step still counts as progress.',
+  'You survived one hundred percent of your hardest days.',
+  'Keep going, your future self is cheering for you.',
+  'You do not need perfect. You need consistent.',
+  'You can do hard things, especially this one.',
+  'Breathe in, shoulders down, onward.',
+  'Today is a great day to start small and win big.',
+  'Momentum beats motivation. Keep moving.',
+  'You have got this. Truly.',
+];
+
+function shuffle<T>(items: T[]): T[] {
+  const copy = [...items];
+  for (let i = copy.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+}
+
+function nextFredPhrase(): string {
+  if (fredPhrasePool.length === 0) {
+    fredPhrasePool = shuffle(FRED_PHRASES);
+  }
+  return fredPhrasePool.pop() || FRED_PHRASES[0];
+}
+
+function speakFredPhrase(text: string): void {
+  if (!('speechSynthesis' in window)) return;
+
+  const utterance = new SpeechSynthesisUtterance(text);
+  const voices = window.speechSynthesis.getVoices();
+  const preferredVoice = voices.find(v => /^en(-|_)/i.test(v.lang));
+  if (preferredVoice) utterance.voice = preferredVoice;
+  utterance.rate = 0.96;
+  utterance.pitch = 1.06;
+  utterance.volume = 0.95;
+
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(utterance);
+}
 
 function launchFredConfetti(originX: number, originY: number): void {
   const colors = ['#56b4e9', '#e69f00', '#009e73', '#cc79a7', '#f2efe6'];
@@ -364,6 +409,7 @@ if (fredBtn) {
   fredBtn.addEventListener('click', () => {
     const rect = fredBtn.getBoundingClientRect();
     launchFredConfetti(rect.left + rect.width / 2, rect.top + rect.height / 2);
+    speakFredPhrase(nextFredPhrase());
   });
 }
 
