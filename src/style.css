@@ -967,22 +967,6 @@ body::before {
   color: var(--accent-green);
 }
 
-.photo-credit {
-  font-size: 0.65rem;
-  margin-top: 0.5rem;
-}
-
-.photo-credit a {
-  color: var(--text-muted);
-  text-decoration: underline;
-  text-underline-offset: 2px;
-  transition: color 0.15s;
-}
-
-.photo-credit a:hover {
-  color: var(--text-secondary);
-}
-
 /* ── Responsive ──────────────────────────────────────────────── */
 
 @media (max-width: 700px) {
