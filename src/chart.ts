@@ -29,15 +29,15 @@ Chart.register(
 let chartInstance: Chart | null = null;
 
 const COLORS = {
-  waypoint: '#f08068',
+  waypoint: '#cc79a7',
   grid: 'rgba(242, 239, 230, 0.08)',
   text: '#f2efe6',
   textMuted: 'rgba(242, 239, 230, 0.5)',
 };
 
 const TREND_COLORS = {
-  rising: '#44ff44',
-  falling: '#ff4444',
+  rising: '#56b4e9',
+  falling: '#e69f00',
   flat: 'rgba(242, 239, 230, 0.45)',
 };
 

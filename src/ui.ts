@@ -238,7 +238,7 @@ export function renderWaypointList(
     const item = document.createElement('div');
     item.className = 'waypoint-item';
     item.innerHTML = `
-      <input type="color" class="waypoint-color-picker" value="${wp.color || '#e8725a'}" title="Change color">
+      <input type="color" class="waypoint-color-picker" value="${wp.color || '#cc79a7'}" title="Change color">
       <span class="waypoint-date">${formatDate(wp.date)}</span>
       <span class="waypoint-label">${escapeHtml(wp.label)}</span>
       <button class="btn-compare" data-id="${wp.id}" title="Compare before/after">Compare</button>

@@ -22,7 +22,7 @@ function loadState(): AppState {
           series: [{
             id: 'migrated',
             name: 'Imported Data',
-            color: '#7ed87e',
+            color: '#56b4e9',
             entries: (legacy.entries || []).sort((a, b) => a.date.localeCompare(b.date)),
             visible: true,
           }],

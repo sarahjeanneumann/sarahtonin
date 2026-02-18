@@ -14,10 +14,12 @@
   --accent-amber: #f0c050;
   --accent-amber-dim: rgba(240, 192, 80, 0.2);
   --accent-rust: #e09050;
-  --accent-red: #f08068;
-  --accent-red-dim: rgba(240, 128, 104, 0.18);
+  --accent-red: #cc79a7;
+  --accent-red-dim: rgba(204, 121, 167, 0.18);
   --accent-sky: #6ab8d4;
   --accent-lavender: #b8a0d8;
+  --semantic-improving: #56b4e9;
+  --semantic-worsening: #e69f00;
 
   --text-primary: #f2efe6;
   --text-secondary: rgba(242, 239, 230, 0.78);
@@ -650,11 +652,11 @@ body::before {
 }
 
 .trend-up {
-  color: var(--accent-red);
+  color: var(--semantic-worsening);
 }
 
 .trend-down {
-  color: var(--accent-green);
+  color: var(--semantic-improving);
 }
 
 .trend-flat {
@@ -817,11 +819,11 @@ body::before {
 }
 
 .delta-good .summary-value {
-  color: var(--accent-green);
+  color: var(--semantic-improving);
 }
 
 .delta-bad .summary-value {
-  color: var(--accent-red);
+  color: var(--semantic-worsening);
 }
 
 .delta-neutral .summary-value {

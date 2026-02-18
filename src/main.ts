@@ -30,7 +30,7 @@ import './style.css';
 
 // ── Default series colors (cycled on upload) ─────────────────────
 
-const SERIES_PALETTE = ['#7ed87e', '#f0c050', '#6ab8d4', '#b8a0d8', '#f08068'];
+const SERIES_PALETTE = ['#56b4e9', '#e69f00', '#009e73', '#cc79a7', '#0072b2'];
 
 function nextSeriesColor(): string {
   const series = getAllSeries();
