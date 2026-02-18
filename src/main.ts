@@ -67,7 +67,7 @@ let fredPhrasePool: string[] = [];
 let fredHoverLastSpokenAt = 0;
 let calmAudio: HTMLAudioElement | null = null;
 
-const CALM_AUDIO_SRC = encodeURI('/Music_for_when_you_are_stressed🍀_128k.mp3');
+const CALM_AUDIO_SRC = encodeURI(`${import.meta.env.BASE_URL}Music_for_when_you_are_stressed🍀_128k.mp3`);
 
 const FRED_PHRASES = [
   'You are doing better than you think.',
