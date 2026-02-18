@@ -81,6 +81,19 @@ body::before {
   pointer-events: none;
 }
 
+.forest-fred {
+  position: fixed;
+  right: 7.5vw;
+  bottom: 14vh;
+  width: 34px;
+  height: auto;
+  border-radius: 6px;
+  opacity: 0.82;
+  filter: saturate(0.95) contrast(0.95) brightness(0.9) drop-shadow(0 2px 6px rgba(0, 0, 0, 0.45));
+  z-index: 0;
+  pointer-events: none;
+}
+
 #drop-zone {
   min-height: 100vh;
   transition: background-color 0.2s;
@@ -901,6 +914,13 @@ body::before {
 /* ── Responsive ──────────────────────────────────────────────── */
 
 @media (max-width: 700px) {
+  .forest-fred {
+    width: 24px;
+    right: 5vw;
+    bottom: 11vh;
+    opacity: 0.7;
+  }
+
   #app {
     padding: 1rem;
   }
