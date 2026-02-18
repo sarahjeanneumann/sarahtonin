@@ -2,8 +2,9 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Garmin Stress Analyzer</title>
+    <title>The Sarahtonin Index</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700&display=swap" rel="stylesheet" />
@@ -14,12 +15,25 @@
         <!-- Header -->
         <header class="app-header">
           <div class="header-left">
-            <svg class="logo-icon" viewBox="0 0 32 32" width="28" height="28">
-              <path d="M16 2 L8 12 L4 28 L16 24 L28 28 L24 12 Z" fill="none" stroke="#7ed87e" stroke-width="1.5"/>
-              <path d="M16 8 L12 16 L10 26 L16 22 L22 26 L20 16 Z" fill="#7ed87e" opacity="0.3"/>
-              <line x1="16" y1="2" x2="16" y2="24" stroke="#f0c050" stroke-width="1" opacity="0.6"/>
+            <svg class="logo-icon" viewBox="0 0 48 48" width="38" height="38">
+              <!-- Tree ring circles -->
+              <circle cx="24" cy="24" r="20" fill="none" stroke="#7ed87e" stroke-width="1" opacity="0.25"/>
+              <circle cx="24" cy="24" r="15" fill="none" stroke="#7ed87e" stroke-width="0.8" opacity="0.18"/>
+              <circle cx="24" cy="24" r="10" fill="none" stroke="#7ed87e" stroke-width="0.6" opacity="0.12"/>
+              <!-- Stress pulse line through the center -->
+              <polyline
+                points="4,24 12,24 15,24 18,16 21,32 24,12 27,34 30,18 33,24 36,24 44,24"
+                fill="none" stroke="#f0c050" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
+              />
+              <!-- Leaf sprouting from top -->
+              <path d="M24,4 Q30,6 28,12 Q26,8 24,4 Z" fill="#7ed87e" opacity="0.7"/>
+              <path d="M24,4 Q18,6 20,12 Q22,8 24,4 Z" fill="#7ed87e" opacity="0.5"/>
+              <line x1="24" y1="4" x2="24" y2="11" stroke="#7ed87e" stroke-width="0.6" opacity="0.4"/>
             </svg>
-            <h1>Garmin Stress Analyzer</h1>
+            <div class="header-title-group">
+              <h1>The Sarahtonin Index</h1>
+              <span class="header-subtitle">stress data, forest-bathed</span>
+            </div>
           </div>
           <div class="header-actions">
             <input type="file" id="csv-upload" accept=".csv,.txt" hidden />
