@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-  base: '/garmin-stress-analyzer/',
+  base: '/sarahtonin/',
   server: {
     port: 8001,
   },
