@@ -29,14 +29,14 @@ Chart.register(
 let chartInstance: Chart | null = null;
 
 const COLORS = {
-  stress: '#6abf69',
-  stressFill: 'rgba(106, 191, 105, 0.15)',
-  ma7: '#d4a843',
-  ma30: '#c07838',
-  waypoint: '#e8725a',
-  grid: 'rgba(232, 228, 217, 0.1)',
-  text: '#e8e4d9',
-  textMuted: 'rgba(232, 228, 217, 0.5)',
+  stress: '#7ed87e',
+  stressFill: 'rgba(126, 216, 126, 0.12)',
+  ma7: '#f0c050',
+  ma30: '#6ab8d4',
+  waypoint: '#f08068',
+  grid: 'rgba(242, 239, 230, 0.08)',
+  text: '#f2efe6',
+  textMuted: 'rgba(242, 239, 230, 0.5)',
 };
 
 export function renderChart(
@@ -199,7 +199,7 @@ export function renderChart(
           bodyFont: {
             family: "'SF Mono', 'Fira Code', monospace",
           },
-          borderColor: 'rgba(106, 191, 105, 0.3)',
+          borderColor: 'rgba(126, 216, 126, 0.3)',
           borderWidth: 1,
           padding: 10,
           callbacks: {

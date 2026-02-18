@@ -3,26 +3,28 @@
    ═══════════════════════════════════════════════════════════════ */
 
 :root {
-  --bg-deep: #111d11;
-  --bg-main: #162016;
-  --bg-card: rgba(14, 30, 14, 0.82);
-  --bg-card-hover: rgba(22, 44, 22, 0.88);
-  --bg-input: rgba(8, 20, 8, 0.75);
+  --bg-deep: #1a2a1a;
+  --bg-main: #223322;
+  --bg-card: rgba(18, 32, 18, 0.62);
+  --bg-card-hover: rgba(26, 44, 26, 0.68);
+  --bg-input: rgba(12, 24, 12, 0.55);
 
-  --accent-green: #6abf69;
-  --accent-green-dim: rgba(106, 191, 105, 0.15);
-  --accent-amber: #d4a843;
-  --accent-amber-dim: rgba(212, 168, 67, 0.2);
-  --accent-rust: #c07838;
-  --accent-red: #e8725a;
-  --accent-red-dim: rgba(232, 114, 90, 0.15);
+  --accent-green: #7ed87e;
+  --accent-green-dim: rgba(126, 216, 126, 0.18);
+  --accent-amber: #f0c050;
+  --accent-amber-dim: rgba(240, 192, 80, 0.2);
+  --accent-rust: #e09050;
+  --accent-red: #f08068;
+  --accent-red-dim: rgba(240, 128, 104, 0.18);
+  --accent-sky: #6ab8d4;
+  --accent-lavender: #b8a0d8;
 
-  --text-primary: #e8e4d9;
-  --text-secondary: rgba(232, 228, 217, 0.7);
-  --text-muted: rgba(232, 228, 217, 0.4);
+  --text-primary: #f2efe6;
+  --text-secondary: rgba(242, 239, 230, 0.78);
+  --text-muted: rgba(242, 239, 230, 0.50);
 
-  --border: rgba(106, 191, 105, 0.15);
-  --border-strong: rgba(106, 191, 105, 0.3);
+  --border: rgba(160, 200, 140, 0.20);
+  --border-strong: rgba(160, 200, 140, 0.38);
 
   --font-heading: 'Futura', 'Futura-Medium', 'Nunito Sans', 'Avenir', sans-serif;
   --font-body: 'Futura', 'Futura-Medium', 'Nunito Sans', 'Avenir', sans-serif;
@@ -66,13 +68,14 @@ body::before {
   background:
     linear-gradient(
       180deg,
-      rgba(11, 20, 11, 0.82) 0%,
-      rgba(14, 26, 14, 0.78) 30%,
-      rgba(11, 20, 11, 0.85) 70%,
-      rgba(8, 15, 8, 0.92) 100%
+      rgba(14, 24, 14, 0.52) 0%,
+      rgba(10, 20, 10, 0.48) 40%,
+      rgba(14, 24, 14, 0.55) 75%,
+      rgba(10, 18, 10, 0.65) 100%
     ),
-    radial-gradient(ellipse at 20% 50%, rgba(106, 191, 105, 0.06) 0%, transparent 70%),
-    radial-gradient(ellipse at 80% 20%, rgba(212, 168, 67, 0.04) 0%, transparent 60%);
+    radial-gradient(ellipse at 25% 40%, rgba(240, 192, 80, 0.07) 0%, transparent 60%),
+    radial-gradient(ellipse at 75% 30%, rgba(106, 184, 212, 0.06) 0%, transparent 55%),
+    radial-gradient(ellipse at 50% 80%, rgba(126, 216, 126, 0.05) 0%, transparent 50%);
   pointer-events: none;
 }
 
@@ -103,9 +106,13 @@ body::before {
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 1rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid var(--border);
+  padding: 0.8rem 1.2rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
   margin-bottom: 1.5rem;
+  background: var(--bg-card);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 .header-left {
@@ -203,7 +210,7 @@ body::before {
 .data-status.has-data {
   color: var(--accent-green);
   background: var(--accent-green-dim);
-  border: 1px solid rgba(106, 191, 105, 0.25);
+  border: 1px solid rgba(126, 216, 126, 0.25);
 }
 
 /* ── Sections ────────────────────────────────────────────────── */
@@ -221,6 +228,10 @@ body::before {
   margin: 0 0 1rem;
   padding-bottom: 0.4rem;
   border-bottom: 1px solid var(--border);
+}
+
+#comparison-title {
+  color: var(--accent-sky);
 }
 
 /* ── Chart ────────────────────────────────────────────────────── */
@@ -540,7 +551,15 @@ body::before {
   font-size: 1rem;
   font-weight: 600;
   margin: 0 0 0.3rem;
-  color: var(--accent-amber);
+  color: var(--accent-sky);
+}
+
+.comparison-side:first-child h4 {
+  color: var(--accent-lavender);
+}
+
+.comparison-side:last-child h4 {
+  color: var(--accent-green);
 }
 
 .comparison-label {
