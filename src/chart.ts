@@ -39,7 +39,7 @@ const COLORS = {
   textMuted: 'rgba(242, 239, 230, 0.5)',
 };
 
-const TREND_COLORS = ['#b8a0d8', '#f08068', '#6ab8d4', '#f0c050', '#7ed87e'];
+const TREND_COLOR = 'rgba(242, 239, 230, 0.45)';
 
 export function renderChart(
   canvas: HTMLCanvasElement,
@@ -95,7 +95,7 @@ export function renderChart(
     if (startIdx !== undefined) trendData[startIdx] = yStart;
     if (endIdx !== undefined) trendData[endIdx] = yEnd;
 
-    const color = TREND_COLORS[si % TREND_COLORS.length];
+    const color = TREND_COLOR;
 
     trendDatasets.push({
       label: si === 0 ? 'Trend' : '',
@@ -123,7 +123,6 @@ export function renderChart(
       xMax: wp.date,
       borderColor: wp.color || COLORS.waypoint,
       borderWidth: 2,
-      borderDash: [6, 4],
       label: {
         display: true,
         content: wp.label,
