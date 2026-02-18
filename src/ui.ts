@@ -44,7 +44,7 @@ export function renderSeriesList(
     // Click the row background (not controls) to set active
     item.addEventListener('click', (e) => {
       const target = e.target as HTMLElement;
-      if (target.closest('input') || target.closest('button')) return;
+      if (target.closest('button')) return;
       callbacks.onSetActive(s.id);
     });
 
