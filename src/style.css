@@ -118,13 +118,6 @@ body::before {
 .header-left {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-}
-
-.header-title-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
 }
 
 .header-left h1 {
@@ -134,21 +127,6 @@ body::before {
   margin: 0;
   letter-spacing: 0.02em;
   color: var(--text-primary);
-  line-height: 1.2;
-}
-
-.header-subtitle {
-  font-family: var(--font-body);
-  font-size: 0.7rem;
-  font-weight: 300;
-  letter-spacing: 0.08em;
-  color: var(--accent-amber);
-  opacity: 0.7;
-  text-transform: lowercase;
-}
-
-.logo-icon {
-  flex-shrink: 0;
 }
 
 .header-actions {
@@ -249,6 +227,10 @@ body::before {
 
 #comparison-title {
   color: var(--accent-sky);
+}
+
+#segment-title {
+  color: var(--accent-green);
 }
 
 /* ── Chart ────────────────────────────────────────────────────── */
