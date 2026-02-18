@@ -57,10 +57,71 @@ const wpLabelInput = document.getElementById('wp-label') as HTMLInputElement;
 const wpColorInput = document.getElementById('wp-color') as HTMLInputElement;
 const dataStatus = document.getElementById('data-status') as HTMLElement;
 const comparisonTitle = document.getElementById('comparison-title') as HTMLElement;
+const fredBtn = document.getElementById('fred-btn') as HTMLButtonElement | null;
 
 // ── State ────────────────────────────────────────────────────────
 
 let selectedWaypointId: string | null = null;
+
+function launchFredConfetti(originX: number, originY: number): void {
+  const colors = ['#56b4e9', '#e69f00', '#009e73', '#cc79a7', '#f2efe6'];
+  const pieces: {
+    el: HTMLSpanElement;
+    x: number;
+    y: number;
+    vx: number;
+    vy: number;
+    rot: number;
+    vr: number;
+  }[] = [];
+
+  for (let i = 0; i < 36; i += 1) {
+    const el = document.createElement('span');
+    el.className = 'fred-confetti';
+    const size = 6 + Math.random() * 6;
+    el.style.width = `${size}px`;
+    el.style.height = `${size * 1.4}px`;
+    el.style.background = colors[i % colors.length];
+    document.body.appendChild(el);
+
+    const angle = (Math.PI * 2 * i) / 36 + (Math.random() - 0.5) * 0.35;
+    const speed = 2 + Math.random() * 4;
+    pieces.push({
+      el,
+      x: originX,
+      y: originY,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed - 2.2,
+      rot: Math.random() * 360,
+      vr: (Math.random() - 0.5) * 22,
+    });
+  }
+
+  let ticks = 0;
+  const gravity = 0.14;
+
+  const step = () => {
+    ticks += 1;
+    for (const p of pieces) {
+      p.vy += gravity;
+      p.vx *= 0.99;
+      p.vy *= 0.995;
+      p.x += p.vx;
+      p.y += p.vy;
+      p.rot += p.vr;
+      p.el.style.transform = `translate(${p.x}px, ${p.y}px) rotate(${p.rot}deg)`;
+      p.el.style.opacity = `${Math.max(0, 1 - ticks / 90)}`;
+    }
+
+    if (ticks < 90) {
+      requestAnimationFrame(step);
+    } else {
+      for (const p of pieces) p.el.remove();
+    }
+  };
+
+  requestAnimationFrame(step);
+}
 
 // ── Render everything ────────────────────────────────────────────
 
@@ -298,6 +359,13 @@ document.addEventListener('drop', (e) => {
   if (!file) return;
   handleCSVUpload(file);
 });
+
+if (fredBtn) {
+  fredBtn.addEventListener('click', () => {
+    const rect = fredBtn.getBoundingClientRect();
+    launchFredConfetti(rect.left + rect.width / 2, rect.top + rect.height / 2);
+  });
+}
 
 // ── Init ─────────────────────────────────────────────────────────
 
