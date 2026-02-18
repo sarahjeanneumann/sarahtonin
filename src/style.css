@@ -81,18 +81,10 @@ body::before {
   pointer-events: none;
 }
 
-.forest-dock {
+.forest-fred {
   position: fixed;
   right: 5.5vw;
   bottom: 8vh;
-  display: flex;
-  align-items: center;
-  gap: 0.45rem;
-  z-index: 4;
-}
-
-.forest-fred {
-  position: relative;
   width: 24px;
   height: 24px;
   padding: 0;
@@ -121,37 +113,6 @@ body::before {
   object-position: 54% 28%;
   opacity: 0.9;
   filter: saturate(0.9) contrast(0.96) brightness(0.92);
-}
-
-.calm-music-btn {
-  width: 24px;
-  height: 24px;
-  padding: 0;
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  border-radius: 4px;
-  background: rgba(20, 22, 18, 0.85);
-  color: var(--text-primary);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.86rem;
-  line-height: 1;
-  cursor: pointer;
-}
-
-.calm-music-btn:hover {
-  transform: translateY(-1px);
-}
-
-.calm-music-btn.active {
-  border-color: rgba(86, 180, 233, 0.8);
-  color: #56b4e9;
-}
-
-.calm-music-btn:focus-visible {
-  outline: 2px solid rgba(242, 239, 230, 0.75);
-  outline-offset: 2px;
 }
 
 .fred-confetti {
@@ -985,21 +946,11 @@ body::before {
 /* ── Responsive ──────────────────────────────────────────────── */
 
 @media (max-width: 700px) {
-  .forest-dock {
-    right: 4vw;
-    bottom: 10vh;
-    gap: 0.35rem;
-  }
-
   .forest-fred {
     width: 20px;
     height: 20px;
-  }
-
-  .calm-music-btn {
-    width: 20px;
-    height: 20px;
-    font-size: 0.74rem;
+    right: 4vw;
+    bottom: 10vh;
   }
 
   #app {
