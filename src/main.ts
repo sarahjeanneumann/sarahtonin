@@ -66,7 +66,11 @@ let selectedWaypointId: string | null = null;
 
 function refresh(): void {
   const seriesList = getAllSeries();
-  const activeId = getActiveSeriesId();
+  let activeId = getActiveSeriesId();
+  if (!activeId && seriesList.length > 0) {
+    activeId = seriesList[0].id;
+    setActiveSeriesId(activeId);
+  }
   const waypoints = getWaypoints();
   const activeSeries = seriesList.find(s => s.id === activeId) ?? null;
 
@@ -84,14 +88,12 @@ function refresh(): void {
   renderSeriesList(seriesContainer, seriesList, activeId, {
     onRename: handleSeriesRename,
     onColorChange: handleSeriesColorChange,
-    onToggleVisibility: handleSeriesToggle,
     onSetActive: handleSetActive,
     onRemove: handleSeriesRemove,
   });
 
   // Chart
-  const hasVisibleData = seriesList.some(s => s.visible && s.entries.length > 0);
-  if (hasVisibleData) {
+  if (activeSeries && activeSeries.entries.length > 0) {
     renderChart(chartCanvas, seriesList, activeId, waypoints);
   } else {
     destroyChart();
@@ -181,15 +183,6 @@ function handleSeriesColorChange(id: string, color: string): void {
   const s = seriesList.find(s => s.id === id);
   if (s) {
     updateSeries({ ...s, color });
-    refresh();
-  }
-}
-
-function handleSeriesToggle(id: string): void {
-  const seriesList = getAllSeries();
-  const s = seriesList.find(s => s.id === id);
-  if (s) {
-    updateSeries({ ...s, visible: !s.visible });
     refresh();
   }
 }

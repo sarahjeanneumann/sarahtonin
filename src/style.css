@@ -388,6 +388,16 @@ body::before {
   border-color: rgba(255, 255, 255, 0.4);
 }
 
+.series-name-label {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+}
+
 .series-name-input {
   flex: 1;
   min-width: 0;
@@ -395,14 +405,19 @@ body::before {
   border: 1px solid transparent;
   border-radius: 4px;
   color: var(--text-primary);
-  font-family: var(--font-primary);
+  font-family: var(--font-body);
   font-size: 0.85rem;
   padding: 0.2rem 0.4rem;
   transition: border-color 0.15s, background 0.15s;
+  display: none;
 }
 
-.series-name-input:hover {
-  border-color: rgba(255, 255, 255, 0.1);
+.series-item.editing .series-name-label {
+  display: none;
+}
+
+.series-item.editing .series-name-input {
+  display: block;
 }
 
 .series-name-input:focus {
@@ -411,16 +426,9 @@ body::before {
   background: rgba(255, 255, 255, 0.04);
 }
 
-.series-count {
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  color: var(--text-secondary);
-  flex-shrink: 0;
-}
-
-.series-toggle {
+.series-edit {
   background: none;
-  border: none;
+  border: 1px solid transparent;
   color: var(--text-secondary);
   cursor: pointer;
   padding: 0.2rem;
@@ -428,21 +436,21 @@ body::before {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: color 0.15s, opacity 0.15s;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
   flex-shrink: 0;
 }
 
-.series-toggle.visible {
+.series-edit:hover {
   color: var(--text-primary);
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.06);
 }
 
-.series-toggle:not(.visible) {
-  opacity: 0.4;
-}
-
-.series-toggle:hover {
-  color: var(--text-primary);
-  opacity: 1;
+.series-count {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  flex-shrink: 0;
 }
 
 .series-remove {

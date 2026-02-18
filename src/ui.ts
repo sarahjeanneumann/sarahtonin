@@ -5,7 +5,6 @@ import type { SegmentStats, Series, Waypoint, WaypointComparison } from './types
 export interface SeriesCallbacks {
   onRename: (id: string, name: string) => void;
   onColorChange: (id: string, color: string) => void;
-  onToggleVisibility: (id: string) => void;
   onSetActive: (id: string) => void;
   onRemove: (id: string) => void;
 }
@@ -33,32 +32,60 @@ export function renderSeriesList(
     item.className = 'series-item' + (s.id === activeSeriesId ? ' active' : '');
     item.innerHTML = `
       <input type="color" class="series-color-picker" value="${s.color}" title="Change color">
+      <span class="series-name-label" title="Series name">${escapeHtml(s.name)}</span>
       <input type="text" class="series-name-input" value="${escapeAttr(s.name)}" title="Rename series">
       <span class="series-count">${s.entries.length}d</span>
-      <button class="series-toggle${s.visible ? ' visible' : ''}" title="${s.visible ? 'Hide' : 'Show'} series">
-        ${s.visible ? eyeOpenSvg : eyeClosedSvg}
-      </button>
+      <button class="series-edit" title="Edit series name">${pencilSvg}</button>
       <button class="btn-remove series-remove" title="Remove series">&times;</button>
     `;
 
-    // Click the row background (not controls) to set active
+    // Click the row background to set active
     item.addEventListener('click', (e) => {
       const target = e.target as HTMLElement;
-      if (target.closest('button')) return;
+      if (target.closest('button, input')) return;
       callbacks.onSetActive(s.id);
     });
 
     const colorPicker = item.querySelector('.series-color-picker') as HTMLInputElement;
+    const nameLabel = item.querySelector('.series-name-label') as HTMLSpanElement;
     const nameInput = item.querySelector('.series-name-input') as HTMLInputElement;
-    const toggleBtn = item.querySelector('.series-toggle') as HTMLButtonElement;
+    const editBtn = item.querySelector('.series-edit') as HTMLButtonElement;
     const removeBtn = item.querySelector('.series-remove') as HTMLButtonElement;
 
     colorPicker.addEventListener('input', () => callbacks.onColorChange(s.id, colorPicker.value));
-    nameInput.addEventListener('change', () => {
+
+    const commitRename = () => {
       const newName = nameInput.value.trim();
-      if (newName) callbacks.onRename(s.id, newName);
+      if (newName) {
+        callbacks.onRename(s.id, newName);
+        nameLabel.textContent = newName;
+      }
+      item.classList.remove('editing');
+    };
+
+    const cancelRename = () => {
+      nameInput.value = nameLabel.textContent || s.name;
+      item.classList.remove('editing');
+    };
+
+    editBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (!item.classList.contains('editing')) {
+        item.classList.add('editing');
+        nameInput.focus();
+        nameInput.select();
+      } else {
+        commitRename();
+      }
     });
-    toggleBtn.addEventListener('click', () => callbacks.onToggleVisibility(s.id));
+
+    nameInput.addEventListener('click', (e) => e.stopPropagation());
+    nameInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') commitRename();
+      if (e.key === 'Escape') cancelRename();
+    });
+    nameInput.addEventListener('blur', commitRename);
+
     removeBtn.addEventListener('click', () => callbacks.onRemove(s.id));
 
     list.appendChild(item);
@@ -67,9 +94,7 @@ export function renderSeriesList(
   container.appendChild(list);
 }
 
-const eyeOpenSvg = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
-const eyeClosedSvg = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`;
-
+const pencilSvg = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>`;
 // ── Segment Cards ────────────────────────────────────────────────
 
 export function renderSegmentCards(container: HTMLElement, segments: SegmentStats[]): void {
