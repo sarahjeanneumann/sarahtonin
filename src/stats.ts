@@ -61,6 +61,26 @@ export function linearRegressionSlope(values: number[]): number {
   return (n * sumXY - sumX * sumY) / denom;
 }
 
+// Returns both slope and intercept for charting trendlines
+export function linearRegression(values: number[]): { slope: number; intercept: number } {
+  const n = values.length;
+  if (n < 2) return { slope: 0, intercept: values[0] ?? 0 };
+
+  let sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0;
+  for (let i = 0; i < n; i++) {
+    sumX += i;
+    sumY += values[i];
+    sumXY += i * values[i];
+    sumX2 += i * i;
+  }
+
+  const denom = n * sumX2 - sumX * sumX;
+  if (denom === 0) return { slope: 0, intercept: sumY / n };
+  const slope = (n * sumXY - sumX * sumY) / denom;
+  const intercept = (sumY - slope * sumX) / n;
+  return { slope, intercept };
+}
+
 // ── Welch's t-test ───────────────────────────────────────────────
 // Two-sample t-test (unequal variances)
 // Returns approximate two-tailed p-value

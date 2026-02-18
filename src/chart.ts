@@ -12,7 +12,7 @@ import {
 import annotationPlugin from 'chartjs-plugin-annotation';
 import 'chartjs-adapter-date-fns';
 import type { StressEntry, Waypoint } from './types';
-import { movingAverage } from './stats';
+import { movingAverage, buildSegments, linearRegression } from './stats';
 
 Chart.register(
   LineController,
@@ -39,6 +39,8 @@ const COLORS = {
   textMuted: 'rgba(242, 239, 230, 0.5)',
 };
 
+const TREND_COLORS = ['#b8a0d8', '#f08068', '#6ab8d4', '#f0c050', '#7ed87e'];
+
 export function renderChart(
   canvas: HTMLCanvasElement,
   entries: StressEntry[],
@@ -55,6 +57,62 @@ export function renderChart(
   const scores = entries.map(e => e.score);
   const ma7 = movingAverage(entries, 7);
   const ma30 = movingAverage(entries, 30);
+
+  // Build per-segment trendline datasets
+  const segments = buildSegments(entries, waypoints);
+  const trendDatasets: Array<{
+    label: string;
+    data: (number | null)[];
+    borderColor: string;
+    borderWidth: number;
+    borderDash: number[];
+    pointRadius: number;
+    pointHoverRadius: number;
+    fill: boolean;
+    tension: number;
+    spanGaps: boolean;
+    order: number;
+    isTrendline: boolean;
+  }> = [];
+
+  // Create a date-to-index map for fast lookup
+  const dateIndex = new Map<string, number>();
+  labels.forEach((d, i) => dateIndex.set(d, i));
+
+  for (let si = 0; si < segments.length; si++) {
+    const seg = segments[si];
+    if (seg.entries.length < 2) continue;
+
+    const segScores = seg.entries.map(e => e.score);
+    const { slope, intercept } = linearRegression(segScores);
+    const yStart = intercept;
+    const yEnd = intercept + slope * (segScores.length - 1);
+
+    // Build a sparse data array: null everywhere except the segment endpoints
+    const trendData: (number | null)[] = new Array(labels.length).fill(null);
+    const startIdx = dateIndex.get(seg.entries[0].date);
+    const endIdx = dateIndex.get(seg.entries[seg.entries.length - 1].date);
+    if (startIdx !== undefined) trendData[startIdx] = yStart;
+    if (endIdx !== undefined) trendData[endIdx] = yEnd;
+
+    const color = TREND_COLORS[si % TREND_COLORS.length];
+
+    trendDatasets.push({
+      label: si === 0 ? 'Trend' : '',
+      data: trendData,
+      borderColor: color,
+      borderWidth: 2,
+      borderDash: [8, 4],
+      pointRadius: 0,
+      pointHoverRadius: 0,
+      fill: false,
+      tension: 0,
+      spanGaps: true,
+      order: 0,
+      // Custom metadata to identify trendline datasets
+      isTrendline: true,
+    });
+  }
 
   // Build waypoint annotation lines
   const annotations: Record<string, object> = {};
@@ -121,6 +179,7 @@ export function renderChart(
           borderDash: [4, 2],
           order: 1,
         },
+        ...trendDatasets,
       ],
     },
     options: {
@@ -187,6 +246,29 @@ export function renderChart(
             },
             usePointStyle: true,
             pointStyle: 'line',
+            filter: (item) => {
+              // Hide unlabeled trendline datasets from the legend
+              return item.text !== '';
+            },
+          },
+          onClick: (_evt, legendItem, legend) => {
+            const chart = legend.chart;
+            const ci = legendItem.datasetIndex!;
+            const clickedDataset = chart.data.datasets[ci] as any;
+
+            if (clickedDataset.isTrendline) {
+              // Toggle ALL trendline datasets together
+              const trendVisible = chart.isDatasetVisible(ci);
+              chart.data.datasets.forEach((ds: any, idx: number) => {
+                if (ds.isTrendline) {
+                  chart.setDatasetVisibility(idx, !trendVisible);
+                }
+              });
+            } else {
+              // Default toggle behavior for non-trendline datasets
+              chart.setDatasetVisibility(ci, !chart.isDatasetVisible(ci));
+            }
+            chart.update();
           },
         },
         tooltip: {
