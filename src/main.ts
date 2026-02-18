@@ -6,6 +6,7 @@ import {
   getWaypoints,
   addWaypoint,
   removeWaypoint,
+  updateWaypoint,
   clearAll,
 } from './storage';
 import {
@@ -71,7 +72,7 @@ function refresh(): void {
   renderSegmentCards(segmentContainer, segStats);
 
   // Waypoint list
-  renderWaypointList(waypointContainer, waypoints, handleRemoveWaypoint, handleSelectWaypoint);
+  renderWaypointList(waypointContainer, waypoints, handleRemoveWaypoint, handleSelectWaypoint, handleColorChange);
 
   // Comparison
   if (selectedWaypointId) {
@@ -162,6 +163,15 @@ function handleRemoveWaypoint(id: string): void {
   removeWaypoint(id);
   if (selectedWaypointId === id) selectedWaypointId = null;
   refresh();
+}
+
+function handleColorChange(id: string, color: string): void {
+  const waypoints = getWaypoints();
+  const wp = waypoints.find(w => w.id === id);
+  if (wp) {
+    updateWaypoint({ ...wp, color });
+    refresh();
+  }
 }
 
 function handleSelectWaypoint(id: string): void {

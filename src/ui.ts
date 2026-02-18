@@ -152,6 +152,7 @@ export function renderWaypointList(
   waypoints: Waypoint[],
   onRemove: (id: string) => void,
   onSelect: (id: string) => void,
+  onColorChange: (id: string, color: string) => void,
 ): void {
   container.innerHTML = '';
 
@@ -167,16 +168,18 @@ export function renderWaypointList(
     const item = document.createElement('div');
     item.className = 'waypoint-item';
     item.innerHTML = `
-      <span class="waypoint-color" style="background: ${wp.color || '#e8725a'}"></span>
+      <input type="color" class="waypoint-color-picker" value="${wp.color || '#e8725a'}" title="Change color">
       <span class="waypoint-date">${formatDate(wp.date)}</span>
       <span class="waypoint-label">${escapeHtml(wp.label)}</span>
       <button class="btn-compare" data-id="${wp.id}" title="Compare before/after">Compare</button>
       <button class="btn-remove" data-id="${wp.id}" title="Remove waypoint">&times;</button>
     `;
 
+    const colorPicker = item.querySelector('.waypoint-color-picker') as HTMLInputElement;
     const compareBtn = item.querySelector('.btn-compare') as HTMLButtonElement;
     const removeBtn = item.querySelector('.btn-remove') as HTMLButtonElement;
 
+    colorPicker.addEventListener('input', () => onColorChange(wp.id, colorPicker.value));
     compareBtn.addEventListener('click', () => onSelect(wp.id));
     removeBtn.addEventListener('click', () => onRemove(wp.id));
 

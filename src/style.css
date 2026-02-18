@@ -348,11 +348,35 @@ body::before {
   background: rgba(255, 255, 255, 0.05);
 }
 
-.waypoint-color {
-  width: 10px;
-  height: 10px;
+.waypoint-color-picker {
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  padding: 0;
+  cursor: pointer;
   flex-shrink: 0;
+  background: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.waypoint-color-picker::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.waypoint-color-picker::-webkit-color-swatch {
+  border: none;
+  border-radius: 50%;
+}
+
+.waypoint-color-picker::-moz-color-swatch {
+  border: none;
+  border-radius: 50%;
+}
+
+.waypoint-color-picker:hover {
+  border-color: rgba(255, 255, 255, 0.4);
 }
 
 .waypoint-date {
