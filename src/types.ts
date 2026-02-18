@@ -46,7 +46,16 @@ export interface WaypointComparison {
   effectSizeLabel: string;
 }
 
-export interface AppState {
+export interface Series {
+  id: string;
+  name: string;
+  color: string;
   entries: StressEntry[];
+  visible: boolean;
+}
+
+export interface AppState {
+  series: Series[];
   waypoints: Waypoint[];
+  activeSeriesId: string | null;
 }

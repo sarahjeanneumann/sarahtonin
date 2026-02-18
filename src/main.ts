@@ -1,8 +1,13 @@
 import { parseCSV } from './csv';
 import { renderChart, destroyChart } from './chart';
 import {
-  getEntries,
-  mergeEntries,
+  getAllSeries,
+  addSeries,
+  removeSeries as removeSeriesFromStorage,
+  updateSeries,
+  getActiveSeriesId,
+  setActiveSeriesId,
+  deduplicateSeriesName,
   getWaypoints,
   addWaypoint,
   removeWaypoint,
@@ -18,9 +23,23 @@ import {
   renderSegmentCards,
   renderComparisonPanel,
   renderWaypointList,
+  renderSeriesList,
 } from './ui';
-import type { Waypoint } from './types';
+import type { Series, Waypoint } from './types';
 import './style.css';
+
+// ── Default series colors (cycled on upload) ─────────────────────
+
+const SERIES_PALETTE = ['#7ed87e', '#f0c050', '#6ab8d4', '#b8a0d8', '#f08068'];
+
+function nextSeriesColor(): string {
+  const series = getAllSeries();
+  const usedColors = new Set(series.map(s => s.color));
+  for (const c of SERIES_PALETTE) {
+    if (!usedColors.has(c)) return c;
+  }
+  return SERIES_PALETTE[series.length % SERIES_PALETTE.length];
+}
 
 // ── DOM references ───────────────────────────────────────────────
 
@@ -28,6 +47,7 @@ const fileInput = document.getElementById('csv-upload') as HTMLInputElement;
 const uploadBtn = document.getElementById('btn-upload') as HTMLButtonElement;
 const clearBtn = document.getElementById('btn-clear') as HTMLButtonElement;
 const chartCanvas = document.getElementById('stress-chart') as HTMLCanvasElement;
+const seriesContainer = document.getElementById('series-list') as HTMLElement;
 const segmentContainer = document.getElementById('segment-cards') as HTMLElement;
 const waypointContainer = document.getElementById('waypoint-list') as HTMLElement;
 const comparisonContainer = document.getElementById('comparison-panel') as HTMLElement;
@@ -45,41 +65,56 @@ let selectedWaypointId: string | null = null;
 // ── Render everything ────────────────────────────────────────────
 
 function refresh(): void {
-  const entries = getEntries();
+  const seriesList = getAllSeries();
+  const activeId = getActiveSeriesId();
   const waypoints = getWaypoints();
+  const activeSeries = seriesList.find(s => s.id === activeId) ?? null;
 
   // Status
-  if (entries.length > 0) {
-    const first = entries[0].date;
-    const last = entries[entries.length - 1].date;
-    dataStatus.textContent = `${entries.length} days loaded (${first} to ${last})`;
+  const totalDays = seriesList.reduce((sum, s) => sum + s.entries.length, 0);
+  if (totalDays > 0) {
+    dataStatus.textContent = `${seriesList.length} series, ${totalDays} total days`;
     dataStatus.className = 'data-status has-data';
   } else {
     dataStatus.textContent = 'No data loaded';
     dataStatus.className = 'data-status no-data';
   }
 
+  // Series list
+  renderSeriesList(seriesContainer, seriesList, activeId, {
+    onRename: handleSeriesRename,
+    onColorChange: handleSeriesColorChange,
+    onToggleVisibility: handleSeriesToggle,
+    onSetActive: handleSetActive,
+    onRemove: handleSeriesRemove,
+  });
+
   // Chart
-  if (entries.length > 0) {
-    renderChart(chartCanvas, entries, waypoints);
+  const hasVisibleData = seriesList.some(s => s.visible && s.entries.length > 0);
+  if (hasVisibleData) {
+    renderChart(chartCanvas, seriesList, activeId, waypoints);
   } else {
     destroyChart();
   }
 
-  // Segments
-  const segments = buildSegments(entries, waypoints);
-  const segStats = segments.map(computeSegmentStats);
-  renderSegmentCards(segmentContainer, segStats);
+  // Segments & comparison use the active series
+  if (activeSeries && activeSeries.entries.length > 0) {
+    const segments = buildSegments(activeSeries.entries, waypoints);
+    const segStats = segments.map(computeSegmentStats);
+    renderSegmentCards(segmentContainer, segStats);
+  } else {
+    renderSegmentCards(segmentContainer, []);
+  }
 
   // Waypoint list
-  renderWaypointList(waypointContainer, waypoints, handleRemoveWaypoint, handleSelectWaypoint, handleColorChange);
+  renderWaypointList(waypointContainer, waypoints, handleRemoveWaypoint, handleSelectWaypoint, handleWaypointColorChange);
 
   // Comparison
-  if (selectedWaypointId) {
+  if (selectedWaypointId && activeSeries) {
     const wp = waypoints.find(w => w.id === selectedWaypointId);
     if (wp) {
-      comparisonTitle.textContent = `Comparing: ${wp.label}`;
-      const comparison = computeWaypointComparison(entries, wp);
+      comparisonTitle.textContent = `Comparing: ${wp.label} (${activeSeries.name})`;
+      const comparison = computeWaypointComparison(activeSeries.entries, wp);
       renderComparisonPanel(comparisonContainer, comparison);
     } else {
       selectedWaypointId = null;
@@ -91,11 +126,83 @@ function refresh(): void {
     renderComparisonPanel(comparisonContainer, null);
   }
 
-  // Update waypoint date input range
-  if (entries.length > 0) {
-    wpDateInput.min = entries[0].date;
-    wpDateInput.max = entries[entries.length - 1].date;
+  // Update waypoint date input range using all series dates
+  const allDates = seriesList.flatMap(s => s.entries.map(e => e.date)).sort();
+  if (allDates.length > 0) {
+    wpDateInput.min = allDates[0];
+    wpDateInput.max = allDates[allDates.length - 1];
   }
+}
+
+// ── CSV upload → create series ───────────────────────────────────
+
+function handleCSVUpload(file: File): void {
+  const reader = new FileReader();
+  reader.onload = () => {
+    const text = reader.result as string;
+    const parsed = parseCSV(text);
+
+    if (parsed.length === 0) {
+      alert('No valid stress data found in the CSV. Expected format:\ndate,stress_score\n2024-01-01,42');
+      return;
+    }
+
+    // Derive name from filename, deduplicate
+    const baseName = file.name.replace(/\.\w+$/, '') || 'Data';
+    const name = deduplicateSeriesName(baseName);
+
+    const series: Series = {
+      id: `series-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      name,
+      color: nextSeriesColor(),
+      entries: parsed.sort((a, b) => a.date.localeCompare(b.date)),
+      visible: true,
+    };
+
+    addSeries(series);
+    refresh();
+  };
+  reader.readAsText(file);
+}
+
+// ── Series handlers ──────────────────────────────────────────────
+
+function handleSeriesRename(id: string, name: string): void {
+  const seriesList = getAllSeries();
+  const s = seriesList.find(s => s.id === id);
+  if (s) {
+    updateSeries({ ...s, name });
+    refresh();
+  }
+}
+
+function handleSeriesColorChange(id: string, color: string): void {
+  const seriesList = getAllSeries();
+  const s = seriesList.find(s => s.id === id);
+  if (s) {
+    updateSeries({ ...s, color });
+    refresh();
+  }
+}
+
+function handleSeriesToggle(id: string): void {
+  const seriesList = getAllSeries();
+  const s = seriesList.find(s => s.id === id);
+  if (s) {
+    updateSeries({ ...s, visible: !s.visible });
+    refresh();
+  }
+}
+
+function handleSetActive(id: string): void {
+  setActiveSeriesId(id);
+  refresh();
+}
+
+function handleSeriesRemove(id: string): void {
+  if (!confirm('Remove this data series? This cannot be undone.')) return;
+  removeSeriesFromStorage(id);
+  refresh();
 }
 
 // ── Event handlers ───────────────────────────────────────────────
@@ -107,26 +214,12 @@ uploadBtn.addEventListener('click', () => {
 fileInput.addEventListener('change', () => {
   const file = fileInput.files?.[0];
   if (!file) return;
-
-  const reader = new FileReader();
-  reader.onload = () => {
-    const text = reader.result as string;
-    const parsed = parseCSV(text);
-
-    if (parsed.length === 0) {
-      alert('No valid stress data found in the CSV. Expected format:\ndate,stress_score\n2024-01-01,42');
-      return;
-    }
-
-    mergeEntries(parsed);
-    refresh();
-    fileInput.value = '';
-  };
-  reader.readAsText(file);
+  handleCSVUpload(file);
+  fileInput.value = '';
 });
 
 clearBtn.addEventListener('click', () => {
-  if (confirm('Clear all data and waypoints? This cannot be undone.')) {
+  if (confirm('Clear all data, series, and waypoints? This cannot be undone.')) {
     clearAll();
     selectedWaypointId = null;
     refresh();
@@ -165,7 +258,7 @@ function handleRemoveWaypoint(id: string): void {
   refresh();
 }
 
-function handleColorChange(id: string, color: string): void {
+function handleWaypointColorChange(id: string, color: string): void {
   const waypoints = getWaypoints();
   const wp = waypoints.find(w => w.id === id);
   if (wp) {
@@ -210,21 +303,7 @@ document.addEventListener('drop', (e) => {
 
   const file = e.dataTransfer?.files[0];
   if (!file) return;
-
-  const reader = new FileReader();
-  reader.onload = () => {
-    const text = reader.result as string;
-    const parsed = parseCSV(text);
-
-    if (parsed.length === 0) {
-      alert('No valid stress data found in the CSV.');
-      return;
-    }
-
-    mergeEntries(parsed);
-    refresh();
-  };
-  reader.readAsText(file);
+  handleCSVUpload(file);
 });
 
 // ── Init ─────────────────────────────────────────────────────────

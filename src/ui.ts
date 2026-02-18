@@ -1,4 +1,74 @@
-import type { SegmentStats, Waypoint, WaypointComparison } from './types';
+import type { SegmentStats, Series, Waypoint, WaypointComparison } from './types';
+
+// ── Series callbacks ─────────────────────────────────────────────
+
+export interface SeriesCallbacks {
+  onRename: (id: string, name: string) => void;
+  onColorChange: (id: string, color: string) => void;
+  onToggleVisibility: (id: string) => void;
+  onSetActive: (id: string) => void;
+  onRemove: (id: string) => void;
+}
+
+// ── Series List ──────────────────────────────────────────────────
+
+export function renderSeriesList(
+  container: HTMLElement,
+  seriesList: Series[],
+  activeSeriesId: string | null,
+  callbacks: SeriesCallbacks,
+): void {
+  container.innerHTML = '';
+
+  if (seriesList.length === 0) {
+    container.innerHTML = '<p class="empty-msg">Upload a CSV to add a data series</p>';
+    return;
+  }
+
+  const list = document.createElement('div');
+  list.className = 'series-list';
+
+  for (const s of seriesList) {
+    const item = document.createElement('div');
+    item.className = 'series-item' + (s.id === activeSeriesId ? ' active' : '');
+    item.innerHTML = `
+      <input type="color" class="series-color-picker" value="${s.color}" title="Change color">
+      <input type="text" class="series-name-input" value="${escapeAttr(s.name)}" title="Rename series">
+      <span class="series-count">${s.entries.length}d</span>
+      <button class="series-toggle${s.visible ? ' visible' : ''}" title="${s.visible ? 'Hide' : 'Show'} series">
+        ${s.visible ? eyeOpenSvg : eyeClosedSvg}
+      </button>
+      <button class="btn-remove series-remove" title="Remove series">&times;</button>
+    `;
+
+    // Click the row background (not controls) to set active
+    item.addEventListener('click', (e) => {
+      const target = e.target as HTMLElement;
+      if (target.closest('input') || target.closest('button')) return;
+      callbacks.onSetActive(s.id);
+    });
+
+    const colorPicker = item.querySelector('.series-color-picker') as HTMLInputElement;
+    const nameInput = item.querySelector('.series-name-input') as HTMLInputElement;
+    const toggleBtn = item.querySelector('.series-toggle') as HTMLButtonElement;
+    const removeBtn = item.querySelector('.series-remove') as HTMLButtonElement;
+
+    colorPicker.addEventListener('input', () => callbacks.onColorChange(s.id, colorPicker.value));
+    nameInput.addEventListener('change', () => {
+      const newName = nameInput.value.trim();
+      if (newName) callbacks.onRename(s.id, newName);
+    });
+    toggleBtn.addEventListener('click', () => callbacks.onToggleVisibility(s.id));
+    removeBtn.addEventListener('click', () => callbacks.onRemove(s.id));
+
+    list.appendChild(item);
+  }
+
+  container.appendChild(list);
+}
+
+const eyeOpenSvg = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
+const eyeClosedSvg = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`;
 
 // ── Segment Cards ────────────────────────────────────────────────
 
@@ -195,6 +265,10 @@ function escapeHtml(str: string): string {
   const div = document.createElement('div');
   div.textContent = str;
   return div.innerHTML;
+}
+
+function escapeAttr(str: string): string {
+  return str.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
 function formatDate(iso: string): string {

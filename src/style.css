@@ -326,6 +326,127 @@ body::before {
   padding: 2px;
 }
 
+/* ── Series List ─────────────────────────────────────────────── */
+
+.series-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.series-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.7rem;
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.02);
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.series-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.series-item.active {
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.series-color-picker {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  padding: 0;
+  cursor: pointer;
+  flex-shrink: 0;
+  background: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.series-color-picker::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.series-color-picker::-webkit-color-swatch {
+  border: none;
+  border-radius: 50%;
+}
+
+.series-color-picker::-moz-color-swatch {
+  border: none;
+  border-radius: 50%;
+}
+
+.series-color-picker:hover {
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.series-name-input {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  color: var(--text-primary);
+  font-family: var(--font-primary);
+  font-size: 0.85rem;
+  padding: 0.2rem 0.4rem;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.series-name-input:hover {
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.series-name-input:focus {
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.series-count {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+.series-toggle {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 0.2rem;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s, opacity 0.15s;
+  flex-shrink: 0;
+}
+
+.series-toggle.visible {
+  color: var(--text-primary);
+}
+
+.series-toggle:not(.visible) {
+  opacity: 0.4;
+}
+
+.series-toggle:hover {
+  color: var(--text-primary);
+  opacity: 1;
+}
+
+.series-remove {
+  flex-shrink: 0;
+}
+
 /* ── Waypoint List ───────────────────────────────────────────── */
 
 .waypoint-list {

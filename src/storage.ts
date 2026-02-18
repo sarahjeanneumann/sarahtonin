@@ -1,49 +1,109 @@
-import type { AppState, StressEntry, Waypoint } from './types';
+import type { AppState, Series, Waypoint } from './types';
 
 const STORAGE_KEY = 'garmin-stress-analyzer';
+
+// ── Migration & Loading ──────────────────────────────────────────
+
+interface LegacyAppState {
+  entries?: { date: string; score: number }[];
+  waypoints?: Waypoint[];
+}
 
 function loadState(): AppState {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
-      const parsed = JSON.parse(raw) as AppState;
+      const parsed = JSON.parse(raw);
+
+      // Migrate from old single-entries format
+      if (parsed.entries && !parsed.series) {
+        const legacy = parsed as LegacyAppState;
+        const migrated: AppState = {
+          series: [{
+            id: 'migrated',
+            name: 'Imported Data',
+            color: '#7ed87e',
+            entries: (legacy.entries || []).sort((a, b) => a.date.localeCompare(b.date)),
+            visible: true,
+          }],
+          waypoints: legacy.waypoints || [],
+          activeSeriesId: 'migrated',
+        };
+        saveState(migrated);
+        return migrated;
+      }
+
       return {
-        entries: parsed.entries || [],
+        series: parsed.series || [],
         waypoints: parsed.waypoints || [],
+        activeSeriesId: parsed.activeSeriesId ?? null,
       };
     }
   } catch {
     // Corrupted storage, reset
   }
-  return { entries: [], waypoints: [] };
+  return { series: [], waypoints: [], activeSeriesId: null };
 }
 
 function saveState(state: AppState): void {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 }
 
-export function getEntries(): StressEntry[] {
-  return loadState().entries;
+// ── Series CRUD ──────────────────────────────────────────────────
+
+export function getAllSeries(): Series[] {
+  return loadState().series;
 }
 
-export function setEntries(entries: StressEntry[]): void {
+export function addSeries(series: Series): void {
   const state = loadState();
-  state.entries = entries;
+  state.series.push(series);
+  state.activeSeriesId = series.id;
   saveState(state);
 }
 
-export function mergeEntries(newEntries: StressEntry[]): StressEntry[] {
+export function removeSeries(id: string): void {
   const state = loadState();
-  const map = new Map<string, StressEntry>();
-
-  for (const e of state.entries) map.set(e.date, e);
-  for (const e of newEntries) map.set(e.date, e); // new overwrites old
-
-  const merged = Array.from(map.values()).sort((a, b) => a.date.localeCompare(b.date));
-  state.entries = merged;
+  state.series = state.series.filter(s => s.id !== id);
+  if (state.activeSeriesId === id) {
+    state.activeSeriesId = state.series.length > 0 ? state.series[0].id : null;
+  }
   saveState(state);
-  return merged;
 }
+
+export function updateSeries(series: Series): void {
+  const state = loadState();
+  const idx = state.series.findIndex(s => s.id === series.id);
+  if (idx >= 0) {
+    state.series[idx] = series;
+  }
+  saveState(state);
+}
+
+export function getActiveSeriesId(): string | null {
+  return loadState().activeSeriesId;
+}
+
+export function setActiveSeriesId(id: string | null): void {
+  const state = loadState();
+  state.activeSeriesId = id;
+  saveState(state);
+}
+
+/**
+ * Generate a unique series name by appending (2), (3), etc. if needed.
+ */
+export function deduplicateSeriesName(baseName: string): string {
+  const state = loadState();
+  const existing = new Set(state.series.map(s => s.name));
+  if (!existing.has(baseName)) return baseName;
+
+  let n = 2;
+  while (existing.has(`${baseName} (${n})`)) n++;
+  return `${baseName} (${n})`;
+}
+
+// ── Waypoint CRUD ────────────────────────────────────────────────
 
 export function getWaypoints(): Waypoint[] {
   return loadState().waypoints;
@@ -71,6 +131,8 @@ export function updateWaypoint(wp: Waypoint): void {
   }
   saveState(state);
 }
+
+// ── Clear ────────────────────────────────────────────────────────
 
 export function clearAll(): void {
   localStorage.removeItem(STORAGE_KEY);
