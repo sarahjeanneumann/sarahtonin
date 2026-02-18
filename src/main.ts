@@ -58,12 +58,16 @@ const wpColorInput = document.getElementById('wp-color') as HTMLInputElement;
 const dataStatus = document.getElementById('data-status') as HTMLElement;
 const comparisonTitle = document.getElementById('comparison-title') as HTMLElement;
 const fredBtn = document.getElementById('fred-btn') as HTMLButtonElement | null;
+const calmAudioBtn = document.getElementById('calm-audio-btn') as HTMLButtonElement | null;
 
 // ── State ────────────────────────────────────────────────────────
 
 let selectedWaypointId: string | null = null;
 let fredPhrasePool: string[] = [];
 let fredHoverLastSpokenAt = 0;
+let calmAudio: HTMLAudioElement | null = null;
+
+const CALM_AUDIO_SRC = encodeURI('/Music_for_when_you_are_stressed🍀_128k.mp3');
 
 const FRED_PHRASES = [
   'You are doing better than you think.',
@@ -109,6 +113,31 @@ function speakFredPhrase(text: string): void {
 
   window.speechSynthesis.cancel();
   window.speechSynthesis.speak(utterance);
+}
+
+function setCalmAudioActive(isActive: boolean): void {
+  if (!calmAudioBtn) return;
+  calmAudioBtn.classList.toggle('active', isActive);
+  calmAudioBtn.setAttribute('aria-label', isActive ? 'Pause calming music' : 'Play calming music');
+  calmAudioBtn.title = isActive ? 'Pause calming music' : 'Play calming music';
+}
+
+function toggleCalmAudio(): void {
+  if (!calmAudio) {
+    calmAudio = new Audio(CALM_AUDIO_SRC);
+    calmAudio.loop = true;
+    calmAudio.volume = 0.55;
+    calmAudio.addEventListener('pause', () => setCalmAudioActive(false));
+    calmAudio.addEventListener('play', () => setCalmAudioActive(true));
+  }
+
+  if (calmAudio.paused) {
+    calmAudio.play().catch(() => {
+      setCalmAudioActive(false);
+    });
+  } else {
+    calmAudio.pause();
+  }
 }
 
 function launchFredConfetti(originX: number, originY: number): void {
@@ -413,13 +442,19 @@ if (fredBtn) {
     const now = Date.now();
     if (now - fredHoverLastSpokenAt < 1200) return;
     fredHoverLastSpokenAt = now;
-    speakFredPhrase("Hi i'm Fred Armisen. Click for encouragment you silly goose");
+    speakFredPhrase("Hi i'm Fred Armisen. Click for encouragement you silly goose");
   });
 
   fredBtn.addEventListener('click', () => {
     const rect = fredBtn.getBoundingClientRect();
     launchFredConfetti(rect.left + rect.width / 2, rect.top + rect.height / 2);
     speakFredPhrase(nextFredPhrase());
+  });
+}
+
+if (calmAudioBtn) {
+  calmAudioBtn.addEventListener('click', () => {
+    toggleCalmAudio();
   });
 }
 
