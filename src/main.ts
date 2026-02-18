@@ -68,6 +68,7 @@ let fredHoverLastSpokenAt = 0;
 let calmAudio: HTMLAudioElement | null = null;
 
 const CALM_AUDIO_SRC = encodeURI(`${import.meta.env.BASE_URL}Music_for_when_you_are_stressed🍀_128k.mp3`);
+const FRED_SECRET_PHRASE = 'pee pee poo poo bitch';
 
 const FRED_PHRASES = [
   'You are doing better than you think.',
@@ -104,7 +105,6 @@ const FRED_PHRASES = [
   'You have come too far to doubt yourself now.',
   'You are worthy of ease, joy, and good things.',
   'Even tiny progress today is a victory.',
-  'pee pee poo poo bitch',
 ];
 
 function shuffle<T>(items: T[]): T[] {
@@ -474,6 +474,11 @@ if (fredBtn) {
     const rect = fredBtn.getBoundingClientRect();
     launchFredConfetti(rect.left + rect.width / 2, rect.top + rect.height / 2);
     speakFredPhrase(nextFredPhrase());
+  });
+
+  fredBtn.addEventListener('contextmenu', (e) => {
+    e.preventDefault();
+    speakFredPhrase(FRED_SECRET_PHRASE);
   });
 }
 
